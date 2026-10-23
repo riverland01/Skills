@@ -1,3 +1,5 @@
+> Historical review from 19 October 2026, preserved below. File paths and installation/publication statements describe the original bundle at that time. Use the current repository and skill READMEs for package locations.
+
 # Shortening verification
 
 19 October 2026. The corrected shortened instructions retain the intended functions under an independent rule-preservation review and the bounded behavioral exercises below. No material rule losses or observed regressions remain in that coverage. This is not a guarantee of identical model behavior for every future request.

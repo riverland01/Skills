@@ -5,7 +5,7 @@
       "name": "agent-swarm",
       "source": {
         "source": "local",
-        "path": "./plugins/agent-swarm"
+        "path": "./agent-swarm/chatgpt/agent-swarm"
       },
       "policy": {
         "installation": "AVAILABLE",
