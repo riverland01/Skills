@@ -1,0 +1,6 @@
+interface:
+  display_name: "Orchestrate"
+  short_description: "Coordinate complex work with focused subagents"
+  default_prompt: "Use $orchestrate to assess this task, delegate useful independent work, and synthesize and verify the result."
+policy:
+  allow_implicit_invocation: true

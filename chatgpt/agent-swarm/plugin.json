@@ -1,0 +1,6 @@
+{
+  "$schema": "https://agent-plugins.org/schemas/1.0.0/plugin.schema.json",
+  "name": "agent-swarm",
+  "version": "1.0.1",
+  "description": "Coordinate complex tasks and propose new problem-specific skills from verified solutions."
+}
