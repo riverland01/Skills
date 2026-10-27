@@ -23,7 +23,7 @@ Match depth to stakes, uncertainty, reversibility, and the user's pace. Honor a 
 
 ## Ground the questions
 
-Read relevant supplied material, prior decisions, and accessible project evidence before asking what they already answer. Use the tools actually available (files, connectors, web search, a repository); do not assume a repository, particular CLI, connector, MCP server, or another skill exists. Applicable project `CLAUDE.md` files are context, not interview answers.
+Read relevant supplied material, prior decisions, and accessible project evidence before asking what they already answer. Use the tools actually available (files, connectors, web search, a repository); do not assume a repository, particular CLI, connector, MCP server, or another skill exists. Use what applicable project `CLAUDE.md` files settle instead of re-asking it; they do not answer new decisions on the user's behalf.
 
 Keep sourced facts, user-reported claims, preferences, working assumptions, and unknowns distinct. Check source relevance and freshness where they matter; record source locations and material limitations. User agreement settles a preference or decision, not the truth of an empirical claim. If evidence contradicts the plan, state the concrete conflict and ask the decision that remains.
 

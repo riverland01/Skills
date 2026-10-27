@@ -11,7 +11,7 @@ Clarify and stress-test complex ideas, plans, decisions, and uncertain briefs ac
 
 **Claude Code:** copy the contents of `claude/` to `~/.claude/skills/grill-me/` (or `.claude/skills/grill-me/` inside a project), keeping `references/` beside `SKILL.md`. Start a new session and invoke it with `/grill-me` and the topic, or ask to be grilled.
 
-**Cowork / Claude apps:** upload the [Claude package](releases/grill-me-claude.zip) under Settings → Capabilities → Skills, then enable it. It contains the `claude/` skill under a `grill-me/` root folder.
+**Cowork / Claude apps:** upload the [Claude package](releases/grill-me-claude.zip) in the Claude app's Skills settings, then enable it. It contains the `claude/` skill under a `grill-me/` root folder.
 
 The Claude edition keeps the Codex behavior and changes only runtime bindings: no `agents/openai.yaml`, structured choices via `AskUserQuestion`, read-only subagents for delegation, Cowork's outputs folder as a record location, and an explicit ban on writing to Claude's memory or `CLAUDE.md`. Its [design-sources.md](claude/references/design-sources.md) records the adaptation.
 
