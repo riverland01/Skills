@@ -15,6 +15,16 @@ First consider direct execution or one suitable specialist skill/tool. Delegate 
 
 Use actual native capabilities and limits; assume no tool names, model options, access, isolation, or shared files. If concurrent parent work is required, satisfy that condition for every dispatch without busywork. Without delegation, execute dependencies directly and disclose missing independent agent verification when material. Do not simulate agents or substitute user-visible chats.
 
+## Match model and effort to the task
+
+Choose the least resource-intensive model and reasoning effort likely to meet the acceptance criteria for each assignment, including reviews. Use the task's ambiguity, consequences of error, and ease of checking the result to make that choice.
+
+- Handle straightforward work directly when delegation would add overhead. For bounded assignments with clear inputs and easy checks, prefer a lighter model or lower reasoning effort.
+- Use the runtime default for ordinary synthesis or implementation. Use a more capable model or higher effort for consequential judgments, conflicting evidence, or work that is hard to verify. Keep routine subtasks lightweight even within a complex project.
+- Reassess at checkpoints. Raise effort or capability for the affected work when uncertainty, a failed check, or unexpected complexity warrants it. Reuse accepted results and keep required verification in scope.
+
+Honor user and project settings. Apply model or effort overrides only where the runtime supports and permits them. Otherwise keep the configured settings and control cost through focused scope and concise context.
+
 ## Track tasks and acceptance
 
 Scale tracking: a single assignment needs a tracked return; dependent work needs a compact graph. Record task ID/objective, prerequisites/inputs, owner/scope including permitted writes, expected output/acceptance, and state: pending, running, completed, blocked, failed, or cancelled. Keep tightly coupled work together; use a scout only when missing context prevents decomposition. Revise the graph as evidence changes.
