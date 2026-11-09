@@ -4,7 +4,7 @@ Reusable skills created and maintained by riverland01, organized by **skill → 
 
 | Skill | Purpose | Available editions |
 | --- | --- | --- |
-| [Orchestrate](orchestrate/README.md) | Coordinate complex work through selective delegation, synthesis, and verification | [Codex](orchestrate/codex/SKILL.md) |
+| [Orchestrate](orchestrate/README.md) | Coordinate complex work through selective delegation, synthesis, and verification | [Codex](orchestrate/codex/SKILL.md), [Claude](orchestrate/claude/SKILL.md) |
 | [Agent Swarm](agent-swarm/README.md) | Coordinate tasks and propose separate skills from verified reusable methods | [Claude](agent-swarm/claude/SKILL.md), [ChatGPT](agent-swarm/chatgpt/agent-swarm/skills/swarm-task-orchestrator/SKILL.md) |
 | [Grill Me](grill-me/README.md) | Clarify and challenge complex plans and decisions through adaptive questioning | [Codex](grill-me/codex/SKILL.md), [Claude](grill-me/claude/SKILL.md) |
 
@@ -12,6 +12,7 @@ Reusable skills created and maintained by riverland01, organized by **skill → 
 orchestrate/
   README.md
   codex/                 # Skill, UI metadata, and references
+  claude/                # Skill and references
 agent-swarm/
   README.md
   claude/                # Skill and references
