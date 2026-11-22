@@ -32,7 +32,7 @@ Ported from upstream commit `b14f317` ("Scale Orchestrate model and reasoning ef
 
 Synced with the Codex edition's swarm-inspired operational updates:
 
-- Added persisted state / compaction continuity, functional worker naming, sharded batching, strict read-only verifier boundaries, cold-start vs. warm-context (`subagent_type: "fork"`) guidance, primary-artifact passing, bounded root work, recursive sub-delegate cleanup, silent-failure recovery (stalls, loops, quota limits), outcome-grouped progress updates, visual baseline-to-final evidence, and a "Failure modes to design out" checklist.
+- Added persisted state / compaction continuity, functional worker naming, sharded batching, strict read-only verifier boundaries, cold-start vs. warm-context (`subagent_type: "fork"`) guidance, primary-artifact passing, bounded root work, recursive sub-delegate cleanup, silent-failure recovery (stalls, loops, quota limits), outcome-grouped progress updates, and a "Failure modes to design out" checklist.
 - Mapped compaction continuity, worktree base-state checks and land-before-teardown, idle worker preservation (`SendMessage`), and loop/orphan cleanup (`TaskStop`) in "Claude Code mechanics".
 
 Install as a personal skill at `~/.claude/skills/orchestrate/` (or `.claude/skills/orchestrate/` inside a project). See the [Claude Code skills documentation](https://code.claude.com/docs/en/skills).
