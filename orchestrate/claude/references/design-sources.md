@@ -28,4 +28,11 @@ Ported from upstream commit `b14f317` ("Scale Orchestrate model and reasoning ef
 - Added the "Match model and effort to the task" section, keeping the upstream wording and adding Claude Code examples (`model: "haiku"`, `effort: "low"`; omit both for the default).
 - Rewrote the `Workers` mechanics bullet to point to that section, note that this skill is the explicit instruction the `Agent` tool's `effort` parameter requires, and note that forks ignore both overrides.
 
+## Operational hardening (2026-11-22)
+
+Synced with the Codex edition's swarm-inspired operational updates:
+
+- Added persisted state / compaction continuity, functional worker naming, sharded batching, strict read-only verifier boundaries, cold-start vs. warm-context (`subagent_type: "fork"`) guidance, primary-artifact passing, bounded root work, recursive sub-delegate cleanup, silent-failure recovery (stalls, loops, quota limits), outcome-grouped progress updates, visual baseline-to-final evidence, and a "Failure modes to design out" checklist.
+- Mapped compaction continuity, worktree base-state checks and land-before-teardown, idle worker preservation (`SendMessage`), and loop/orphan cleanup (`TaskStop`) in "Claude Code mechanics".
+
 Install as a personal skill at `~/.claude/skills/orchestrate/` (or `.claude/skills/orchestrate/` inside a project). See the [Claude Code skills documentation](https://code.claude.com/docs/en/skills).

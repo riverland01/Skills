@@ -11,12 +11,13 @@ Adapt coordination across domains; impose no coding pipeline, fixed roster, agen
 
 Map the abstract steps below onto the tools this session actually exposes; check before assuming any of these exist.
 
-- **Workers** are `Agent` calls. Pick `subagent_type` by capability: `Explore` for read-only sweeps (cannot write), `Plan` for design without edits, `general-purpose` for multi-step work that may write. Set `model` (`haiku`, `sonnet`, `opus`) and `effort` (`low` … `max`) per assignment as described under "Match model and effort to the task"; this skill is the explicit instruction the `effort` parameter requires. Forks (`subagent_type: "fork"`) ignore both and always run on the parent's model and effort, so use a fresh agent type when a lighter setting matters.
-- **Parallel dispatch** = several `Agent` calls in one message. Agents run in the background and notify on completion: do not poll, and never state or predict a result before its notification arrives. Do complementary root work meanwhile.
-- **Workers start with no conversation context.** Every brief must be self-contained: paths, excerpts, definitions, decisions already made. Their final report is not shown to the user; relay what matters.
-- **Follow-ups** to an existing worker go through `SendMessage` with its ID (keeps its context). A fresh `Agent` call is for when independence matters, e.g. a verifier.
-- **Cancellation**: `TaskStop`, then confirm it stopped and inspect any partial edits before reassigning or finalizing.
-- **Concurrent writers**: in a git repo use `isolation: "worktree"` (its changes land on a separate branch that must be merged deliberately); otherwise give workers disjoint files or serialize.
+- **Workers** are `Agent` calls. Pick `subagent_type` by capability: `Explore` for read-only sweeps (cannot write), `Plan` for design without edits, `general-purpose` for multi-step work that may write. Name workers functionally (`parser`, `pricing-audit`, `verifier`). Set `model` (`haiku`, `sonnet`, `opus`) and `effort` (`low` … `max`) per assignment as described under "Match model and effort to the task"; this skill is the explicit instruction the `effort` parameter requires. Use `subagent_type: "fork"` when branching a deep investigation that needs warm parent context, noting that forks ignore `model`/`effort` and always run on the parent's settings—so use a fresh agent type for lighter settings, independent verification, or replacing a looping worker.
+- **Parallel dispatch** = several `Agent` calls in one message. Agents run in the background and notify on completion: do not poll, and never state or predict a result before its notification arrives. Keep complementary root work bounded and interruptible so the root stays responsive to completions and user steering.
+- **Workers start with no conversation context.** Every brief must be self-contained: paths, excerpts, definitions, decisions already made, and explicit `must not touch` boundaries. Pass primary artifact paths rather than paraphrasing another worker's report. A worker's final report is not shown to the user; relay what matters.
+- **Follow-ups** to an existing worker go through `SendMessage` with its ID (keeps its context; idle workers cost nothing, so don't stop them early if follow-up is likely). A fresh `Agent` call is for when independence matters (e.g. a verifier) or when breaking a loop.
+- **Cancellation**: `TaskStop`, then confirm it stopped, stop or collect any child workers if sub-delegation was granted, and inspect partial edits before reassigning or finalizing.
+- **Concurrent writers**: in a git repo use `isolation: "worktree"` (check whether it branches from `HEAD` vs. uncommitted parent edits, and merge, cherry-pick, or export accepted changes *before* tearing down or discarding the worktree); otherwise give workers disjoint files or serialize. Keep verifiers read-only (`Explore` or no write ownership): verifiers report, authors fix.
+- **Compaction continuity**: for multi-wave runs, persist the compact task graph, criterion ledger, and artifact index in a working/scratchpad file alongside the session's task-list tool so the root can recover after compaction.
 - **Workflow tool** only when the user has explicitly opted into multi-agent workflows; otherwise use `Agent`. Do not substitute user-visible sessions (`start_session`) for workers unless the user asked for separate sessions.
 - **Tools**: subagents generally inherit the session's MCP tools (literature databases, browsers, etc.); name the ones a worker should use and the sources it must cite.
 
@@ -40,21 +41,21 @@ Honor user and project settings. Apply model or effort overrides only where the 
 
 ## Track tasks and acceptance
 
-Scale tracking: a single assignment needs a tracked return; dependent work needs a compact graph (use the session's task-list tool if exposed, otherwise a short table in working notes). Record task ID/objective, prerequisites/inputs, owner/scope including permitted writes, expected output/acceptance, and state: pending, running, completed, blocked, failed, or cancelled. Keep tightly coupled work together; use a scout only when missing context prevents decomposition. Revise the graph as evidence changes.
+Scale tracking: a single assignment needs a tracked return; dependent work needs a compact graph (use the session's task-list tool if exposed, otherwise a short table in working notes). Record task ID/objective, prerequisites/inputs, owner/scope including permitted writes, expected output/acceptance, and state: pending, running, completed, blocked, failed, or cancelled. Keep tightly coupled work together; use a scout only when missing context prevents decomposition. Revise the graph as evidence changes. For multi-wave or extended runs, persist the compact task graph, criterion ledger, and artifact index in an accessible state/scratchpad file so the root can recover cleanly after context compaction or interruption.
 
 For substantial work, track criterion ID, responsible task IDs or root-owned work, status, and evidence/gap alongside that graph. Simple work needs a checklist. Criterion states differ from task states: **unverified** = not established; **met** = sufficient current evidence inspected and accepted by the root; **unmet** = checked but unsatisfied; **blocked** = assessment prevented by missing prerequisites/evidence. Worker completion alone establishes no acceptance.
 
-Choose workers by actual capabilities; roles confer neither expertise nor access. Assign mutable-resource ownership, including files, browser sessions, workbooks, databases, and account state. Serialize conflicting operations unless isolation is verified; reviewers can inspect without editing ownership. Use applicable specialist skills for execution and validation; pass their names/purpose and project rules rather than reproduce their procedures.
+Choose workers by actual capabilities; roles confer neither expertise nor access. Name workers functionally (`parser`, `pricing-audit`, `verifier`), not opaque IDs; for homogeneous batch slices, factor shared rules into one template with per-slice targets. Assign mutable-resource ownership, including files, browser sessions, workbooks, databases, and account state. Keep read-only workers and verifiers off write ownership (verifiers report findings; authors fix). For concurrent writers, assign disjoint resources, serialize conflicting operations, or use verified workspace isolation (such as `isolation: "worktree"`): verify the isolated base state (committed head vs. uncommitted changes) and land accepted changes (commit, merge, cherry-pick, or export) before cancelling or discarding the worker/workspace. Use applicable specialist skills for execution and validation; pass their names/purpose and project rules rather than reproduce their procedures.
 
 ## Brief workers
 
-Share relevant definitions, source versions, assumptions, and comparison criteria. Distinguish user preferences, supplied claims, and established facts; authority for an edit does not establish factual accuracy. Pass concise excerpts and accessible source locations, preserving material qualifications; allow needed retrieval rather than dumping whole histories.
+A fresh worker sees none of this conversation and will invent unstated context. Share relevant definitions, source versions, assumptions, and comparison criteria; state explicit `must not touch` boundaries alongside permitted changes. Distinguish user preferences, supplied claims, and established facts; authority for an edit does not establish factual accuracy. Start cold when independence matters (verification, replacing a looping worker); prefer focused follow-ups (`SendMessage`) or forked/warm context (`subagent_type: "fork"`) when branching a deep investigation or continuing tightly coupled work. Pass concise excerpts and primary artifact locations rather than paraphrasing another worker's report or dumping whole histories; preserve material qualifications and allow needed retrieval.
 
 Adapt this contract:
 
 > **Objective:** bounded question or artifact.
-> **Inputs:** requirements, prerequisite outputs, sources/versions, applicable rules.
-> **Scope:** owned resources, permitted changes, available tools, constraints.
+> **Inputs:** requirements, prerequisite artifact locations, sources/versions, applicable rules.
+> **Scope:** owned resources, permitted changes, must not touch, available tools, constraints.
 > **Acceptance:** criterion IDs when tracked, output, evidence, completion checks.
 > **Return:** status; findings/changes mapped to criteria; evidence/artifact locations; checks/results; gaps/blockers and next action. On follow-up, report changes since the previous return.
 > **Delegation:** remain a leaf unless the root explicitly assigns bounded further decomposition with ownership and a collection path.
@@ -63,11 +64,11 @@ Distinguish no findings from not checked, inaccessible sources, and incomplete c
 
 ## Dispatch, collect, and refresh
 
-Dispatch ready independent work within capacity; the root coordinates and performs complementary work without duplication. Before releasing a dependent task, collect and inspect every prerequisite against acceptance, including artifact existence. A worker saying "done" is insufficient. Independent branches may continue while others wait.
+Dispatch ready independent work within capacity. Keep root-side complementary work bounded and interruptible (framing, judgment, light synthesis, small glue edits) without duplicating worker effort, and delegate heavy builds, bulk reads, or large edits so the root stays responsive to completions, stalls, and user steering while preserving integration context. Before releasing a dependent task, collect and inspect every prerequisite against acceptance, including artifact existence. A worker saying "done" is insufficient. Independent branches may continue while others wait. Where the runtime supports shared channels or peer messaging, address only the next actor that must wake rather than broadcasting routine status.
 
-Reuse accepted evidence with locations, versions, and limitations; refresh for scope, freshness, contradictions, or verification. Summaries do not become authoritative through reuse. Prefer focused follow-ups unless independence or reliability needs fresh context.
+Reuse accepted evidence with locations, versions, and limitations; refresh for scope, freshness, contradictions, or verification. Summaries do not become authoritative through reuse.
 
-Track every worker through collection or confirmed cancellation. Use supported lifecycle controls, confirm stopped operations, and inspect partial changes before retrying, transferring ownership, or finalizing affected artifacts. Incorporate user steering into active contracts. Never leave an uncollected worker changing a final deliverable.
+Track every worker through collection or confirmed cancellation. Do not cancel idle workers that cost nothing if follow-up is likely. When cancelling or tearing down a worker, use supported lifecycle controls (`TaskStop`), land any accepted changes from isolated workspaces first, confirm stopped operations, stop or collect any child workers it spawned under sub-delegation, and inspect partial changes before retrying, transferring ownership, or finalizing affected artifacts. Incorporate user steering into active contracts. Never leave an uncollected worker changing a final deliverable.
 
 When inputs, requirements, or assumptions change, mark dependent outputs stale, reopen affected criteria as unverified/blocked, and update active workers. Refresh only affected work, preserve unaffected results, and check derived artifacts against current inputs before finalization.
 
@@ -77,19 +78,34 @@ For extended work, identify the next meaningful checkpoint: collection, integrat
 
 Checkpoints are internal decisions, not routine approval pauses or reasons to abandon unfinished work. Preserve scope, acceptance, and required checks. Respect hard limits and report unresolved criteria if they prevent completion; continue useful unaffected work where feasible.
 
-For failure, assess cause, dependencies, ownership, and verified partial results. Keep dependents blocked. Supply missing context, use an available source/tool alternative, narrow/split assignments, serialize interference, request targeted evidence, or complete directly. Stop a failed branch with alternatives when recovery is infeasible. Retry only with a plausible changed condition; never repeat unchanged failure. Update contracts/graph and recheck recovered outputs without duplicating side effects.
+Handle both explicit and silent failures by assessing cause, dependencies, ownership, and verified partial results while keeping dependents blocked:
+
+- **Explicit or partial failure:** supply missing context, use an available source/tool alternative, narrow/split assignments, serialize interference, request targeted evidence, or complete directly. Stop a failed branch with alternatives when recovery is infeasible. Retry only with a plausible changed condition; never repeat unchanged failure. Update contracts/graph and recheck recovered outputs without duplicating side effects.
+- **Stalls and loops:** distinguish healthy long-running work (builds, deep searches—wait) from looping/non-converging workers (interrupt with `TaskStop`, inspect partial state, and replace with a fresh `Agent` and narrower scope) and stalled/unresponsive workers (re-ping once via `SendMessage`, then escalate, fallback, or reassign).
+- **Quota or rate limits:** if a worker hits quota or capacity limits, switch or downgrade its model in-place when the runtime preserves its conversation rather than discarding accumulated work; notify the user if capability materially degrades.
 
 Notify the user when failure materially affects quality, timing, scope, or deliverables, stating impact and revised approach/trade-offs. Routine authorized recovery proceeds directly. Seek a decision only for new authorization or consequential unaccepted trade-offs; otherwise report precise blockers, completed work, and alternatives.
 
 ## Integrate, verify, and finish
 
-The root owns framing, evidence weighting, conflict resolution, integration, and judgment. Distinguish facts, assumptions, and inferences; resolve disagreement with evidence/follow-up rather than voting. Deliver a coherent result, not concatenated reports.
+The root owns framing, evidence weighting, conflict resolution, integration, and judgment. Distinguish facts, assumptions, and inferences; resolve disagreement with evidence/follow-up rather than voting. Deliver a coherent result, not concatenated reports. For mid-flight user updates on extended runs, group status by deliverable/outcome (blocked, active, done) rather than an agent-by-agent log, and clearly separate internal recovery from user decisions.
 
-Use a separate verifier (a fresh `Agent`) when the particular claim's consequences, uncertainty, or integration risk warrant it; domain significance alone does not justify reviewing every minor edit. Give original requirements and relevant primary evidence/artifacts without seeding the conclusion. Self-checks alone cannot satisfy required independent verification.
+Use a separate verifier (a fresh `Agent`) when the particular claim's consequences, uncertainty, or integration risk warrant it; domain significance alone does not justify reviewing every minor edit. Give original requirements and relevant primary evidence/artifacts without seeding the conclusion. Verifiers inspect and report; authors fix. Self-checks alone cannot satisfy required independent verification.
 
-Choose checks suited to the claim through specialist methods. Fresh agents can share mistaken assumptions: seek independent evidence/methods where material, such as primary-source inspection (e.g. opening the cited paper or guideline rather than trusting a summary), recalculation, counterexamples, rendering, or behavioral tests. Agent agreement alone is not verification. Inspect integration where it can introduce errors; fix material findings and recheck affected work. Distinguish self-checks from unavailable independent checks. Reuse primary evidence for separate assessment; do not repeat passed checks without a material reason or expand review without the cost-benefit test.
+Choose checks suited to the claim through specialist methods. Fresh agents can share mistaken assumptions: seek independent evidence/methods where material, such as primary-source inspection (e.g. opening the cited paper or guideline rather than trusting a summary), recalculation, counterexamples, rendering, or behavioral tests. For visual or UI deliverables, require consistent baseline-to-final captures (same viewport and theme) as primary evidence; skip visual capture for non-visual work. Agent agreement alone is not verification. Inspect integration where it can introduce errors; fix material findings and recheck affected work. Distinguish self-checks from unavailable independent checks. Reuse primary evidence for separate assessment; do not repeat passed checks without a material reason or expand review without the cost-benefit test.
 
-Before claiming completion, collect all dispatched outputs or confirm cancelled workers have stopped; inspect partial changes, satisfy dependencies/checks, and reconcile findings and required criteria against the current integrated result. Stop when completion evidence is satisfied. Report results, verification, limitations, and material unmet/blocked/unverified criteria. Distinguish success from hard-limit or blocker stops; blocked prerequisites cannot become success claims.
+Before claiming completion, collect all dispatched outputs or confirm cancelled workers (and any sub-delegates) have stopped; land any isolated workspace changes, inspect partial changes, satisfy dependencies/checks, and reconcile findings and required criteria against the current integrated result. Stop when completion evidence is satisfied. Report results, verification, limitations, and material unmet/blocked/unverified criteria. Distinguish success from hard-limit or blocker stops; blocked prerequisites cannot become success claims.
+
+## Failure modes to design out
+
+- **Write collisions:** two workers modifying the same file or mutable resource, or a verifier editing an author's files.
+- **Cold-start invention:** omitting decisions, definitions, or `must not touch` boundaries from a fresh worker's brief.
+- **Telephone-game drift:** paraphrasing one worker's report into another's brief instead of passing primary artifact locations.
+- **Compaction amnesia:** keeping a multi-wave task graph and criterion ledger only in conversation memory.
+- **Unlanded teardown:** cancelling or discarding an isolated workspace/worktree before landing its accepted changes.
+- **Orphaned sub-delegates:** cancelling a delegating worker while leaving its child workers running.
+- **Silent stall or quota thrash:** letting a looping worker burn turns, or killing a quota-limited worker whose state could be preserved.
+- **Rubber-stamp verification:** treating worker completion, self-checks, or agreement among similarly primed agents as proof.
 
 ## Design reference
 
